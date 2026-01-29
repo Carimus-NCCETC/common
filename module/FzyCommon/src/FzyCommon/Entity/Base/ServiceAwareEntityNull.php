@@ -2,7 +2,7 @@
 namespace FzyCommon\Entity\Base;
 
 use FzyCommon\Entity\BaseNull;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 
 class ServiceAwareEntityNull extends BaseNull implements ServiceAwareEntityInterface
 {

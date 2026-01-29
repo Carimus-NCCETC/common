@@ -5,13 +5,13 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use FzyCommon\Entity\Base\ServiceAwareEntityInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Psr\Container\ContainerInterface;
 
 class ServiceAwareEntity implements EventSubscriber
 {
     private $serviceManager;
 
-    public function __construct(ServiceLocatorInterface $serviceLocator)
+    public function __construct(ContainerInterface $serviceLocator)
     {
         $this->serviceManager = $serviceLocator;
     }

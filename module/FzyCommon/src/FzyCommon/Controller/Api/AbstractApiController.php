@@ -6,7 +6,7 @@ use FzyCommon\Controller\AbstractServiceController;
 use FzyCommon\Service\Search\Base as SearchService;
 use FzyCommon\Service\Update\Base as UpdateService;
 use FzyCommon\Util\Params;
-use Zend\View\Model\JsonModel;
+use Laminas\View\Model\JsonModel;
 
 /**
  * Class AbstractApiController

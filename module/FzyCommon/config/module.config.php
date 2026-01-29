@@ -1,16 +1,12 @@
 <?php
 namespace FzyCommon;
 use Aws\S3\S3Client;
-use Doctrine\Common\Cache\ArrayCache;
 use FzyCommon\Service\Base;
 
 return array(
 	'service_manager' => array(
-		'invokables' => array(
-			'FzyCommon\Service\EntityToForm' => 'FzyCommon\Service\EntityToForm',
-			'FzyCommon\Service\Search\Result' => 'FzyCommon\Service\Search\Result',
-            'FzyCommon\Service\Url' => 'FzyCommon\Service\Url',
-            'FzyCommon\Service\Render' => 'FzyCommon\Service\Render',
+		'abstract_factories' => array(
+			\FzyCommon\Factory\ServiceAbstractFactory::class,
 		),
         'aliases' => array(
             'FzyCommon\EntityToForm' => 'FzyCommon\Service\EntityToForm',
@@ -38,48 +34,36 @@ return array(
 			 * @return \Aws\S3\S3Client
 			 */
 			'FzyCommon\Service\Aws\S3' => function($sm) {
-				return S3Client::factory($sm->get('FzyCommon\Service\Aws\S3\Config')->get());
-			},
-			'FzyCommon\Factory\DoctrineCache' => function($sm) {
-				/* @var $config \FzyCommon\Util\Params */
-				$config      = $sm->get( 'FzyCommon\ModuleConfig' );
-				if ($config->get('production') && class_exists('Redis')) {
-					try {
-						$redisConfig = $config->getWrapped( 'doctrine_cache_config' );
-						$cache       = new \Doctrine\Common\Cache\RedisCache();
-						$redis       = new \Redis();
-						$redis->connect( $redisConfig->get( 'host', '127.0.0.1' ), $redisConfig->get( 'port', 6379 ),
-							$redisConfig->get( 'timeout', 5 ) );
-						$cache->setRedis( $redis );
-
-						return $cache;
-					} catch ( \Exception $e ) {
-						if ( $config->get( 'debug' ) ) {
-							throw $e;
-						}
-					}
-				}
-				return new ArrayCache();
-			},
-			'doctrine.cache.fzy_cache' => function($sm) {
-				/* @var $config \FzyCommon\Util\Params */
-				$config = $sm->get('FzyCommon\ModuleConfig');
-				return $sm->get($config->get('doctrine_cache', 'FzyCommon\Factory\DoctrineCache'));
+				$config = $sm->get('FzyCommon\Service\Aws\S3\Config')->get();
+				return new S3Client(array(
+					'credentials' => $config['credentials'],
+					'region' => $config['region'],
+					'version' => $config['version'],
+				));
 			}
 		),
 	),
 	'controller_plugins' => array(
-		'invokables' => array(
+		'abstract_factories' => array(
+			\FzyCommon\Factory\ControllerPluginAbstractFactory::class,
+		),
+		'aliases' => array(
 			'fzySearchResult' => 'FzyCommon\Controller\Plugin\SearchResult',
 			'fzyUpdateResult' => 'FzyCommon\Controller\Plugin\UpdateResult',
-			'fzyEntityToForm'          => 'FzyCommon\Controller\Plugin\EntityToForm',
-		)
+			'fzyEntityToForm' => 'FzyCommon\Controller\Plugin\EntityToForm',
+		),
 	),
 	'view_helpers' => array(
-		'invokables' => array(
-			'fzyEntityToForm'            => 'FzyCommon\View\Helper\EntityToForm',
-			'fzyNgInit'         => 'FzyCommon\View\Helper\NgInit',
+		'abstract_factories' => array(
+			\FzyCommon\Factory\ViewHelperAbstractFactory::class,
+		),
+		'aliases' => array(
+			'fzyEntityToForm' => 'FzyCommon\View\Helper\EntityToForm',
+			'FzyEntityToForm' => 'FzyCommon\View\Helper\EntityToForm',
+			'fzyNgInit' => 'FzyCommon\View\Helper\NgInit',
+			'FzyNgInit' => 'FzyCommon\View\Helper\NgInit',
 			'fzyRequest' => 'FzyCommon\View\Helper\Request',
+			'FzyRequest' => 'FzyCommon\View\Helper\Request',
 		),
 		'factories' => array(
 			'fzyFlashMessages' => function($sm) {
@@ -110,19 +94,11 @@ return array(
 		'configuration' => array(
 			'orm_default' => array(
 				'generate_proxies' => false,
-				'metadata_cache' => 'fzy_cache',
-				'query_cache' => 'fzy_cache',
 			),
 		),
 	),
 	Base::MODULE_CONFIG_KEY => array(
 		'debug' => false,
 		'production' => true,
-		'doctrine_cache' => 'FzyCommon\Factory\DoctrineCache',
-		'doctrine_cache_config' => array(
-			'host' => '127.0.0.1',
-			'port' => 6379,
-			'timeout' => 5,
-		),
 	),
 );

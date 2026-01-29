@@ -26,7 +26,7 @@ class Request extends Base
     }
 
     /**
-     * @return \Zend\Mvc\Application
+     * @return \Laminas\Mvc\Application
      */
     protected function getApplication()
     {

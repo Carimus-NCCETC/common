@@ -1,8 +1,8 @@
 <?php
 namespace FzyCommon\Service;
 
-use Zend\View\Model\ModelInterface;
-use Zend\View\Model\ViewModel;
+use Laminas\View\Model\ModelInterface;
+use Laminas\View\Model\ViewModel;
 
 /**
  * Class Render

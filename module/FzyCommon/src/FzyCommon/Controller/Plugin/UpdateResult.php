@@ -3,7 +3,7 @@
 namespace FzyCommon\Controller\Plugin;
 
 use FzyCommon\Service\Update\Base as Update;
-use Zend\Http\PhpEnvironment\Response;
+use Laminas\Http\PhpEnvironment\Response;
 
 class UpdateResult extends Base
 {
@@ -17,7 +17,7 @@ class UpdateResult extends Base
             $redirect = $this->url()->fromRoute($updater->getSuccessRedirectRouteName(), $updater->getSuccessRedirectRouteParams(), $updater->getSuccessRedirectRouteOptions());
         } else {
             // set error
-            /* @var $response \Zend\Http\PhpEnvironment\Response */
+            /* @var $response \Laminas\Http\PhpEnvironment\Response */
             $response = $this->getService('Response');
             $response->setStatusCode(Response::STATUS_CODE_400);
         }
@@ -31,7 +31,7 @@ class UpdateResult extends Base
     }
 
     /**
-     * @return \Zend\Mvc\Controller\Plugin\FlashMessenger
+     * @return \Laminas\Mvc\Controller\Plugin\FlashMessenger
      */
     protected function flashMessenger()
     {
@@ -40,7 +40,7 @@ class UpdateResult extends Base
     }
 
     /**
-     * @return \Zend\Mvc\Controller\Plugin\Url
+     * @return \Laminas\Mvc\Controller\Plugin\Url
      */
     protected function url()
     {

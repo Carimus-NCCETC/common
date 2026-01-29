@@ -16,7 +16,7 @@ class Url extends Base
      */
     public function fromRoute($routeName, $routeParams = array(), $routeOptions = array())
     {
-        /* @var $router \Zend\Mvc\Router\Http\TreeRouteStack */
+        /* @var $router \Laminas\Mvc\Router\Http\TreeRouteStack */
         $router = $this->getServiceLocator()->get('router');
 
         return $router->assemble($routeParams, array_merge($routeOptions, array('name' => $routeName)));
@@ -33,14 +33,25 @@ class Url extends Base
      */
     public function fromS3($key, $expiration = null, $downloadAs = null)
     {
-        $args = array();
-        if (!empty($downloadAs)) {
-            if (empty($expiration)) {
-                throw new \RuntimeException("Unable to set download name on URL without expiration.");
-            }
-            $args['ResponseContentDisposition'] = 'attachment;filename='.$downloadAs;
+        /** @var \Aws\S3\S3Client $s3 */
+        $s3 = $this->getServiceLocator()->get('FzyCommon\Service\Aws\S3');
+        $bucket = $this->getServiceLocator()->get('FzyCommon\Service\Aws\S3\Config')->get('bucket');
+
+        if (empty($expiration)) {
+            return $s3->getObjectUrl($bucket, $key);
         }
 
-        return $this->getServiceLocator()->get('FzyCommon\Service\Aws\S3')->getObjectUrl($this->getServiceLocator()->get('FzyCommon\Service\Aws\S3\Config')->get('bucket'), $key, $expiration, $args);
+        $cmdArgs = array(
+            'Bucket' => $bucket,
+            'Key' => $key,
+        );
+        if (!empty($downloadAs)) {
+            $cmdArgs['ResponseContentDisposition'] = 'attachment;filename=' . $downloadAs;
+        }
+
+        $cmd = $s3->getCommand('GetObject', $cmdArgs);
+        $request = $s3->createPresignedRequest($cmd, $expiration);
+
+        return (string) $request->getUri();
     }
 }

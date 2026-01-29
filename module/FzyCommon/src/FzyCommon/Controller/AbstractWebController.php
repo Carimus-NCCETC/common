@@ -10,7 +10,7 @@
 namespace FzyCommon\Controller;
 
 use FzyCommon\Util\Params;
-use Zend\View\Model\ViewModel;
+use Laminas\View\Model\ViewModel;
 
 abstract class AbstractWebController extends AbstractServiceController
 {

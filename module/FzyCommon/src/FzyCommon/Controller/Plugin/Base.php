@@ -2,39 +2,79 @@
 
 namespace FzyCommon\Controller\Plugin;
 
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use Psr\Container\ContainerInterface;
 
-abstract class Base extends AbstractPlugin implements ServiceLocatorAwareInterface
+abstract class Base extends AbstractPlugin
 {
     /**
-     * @var \Zend\Mvc\Controller\PluginManager
+     * @var ContainerInterface
      */
-    protected $serviceLocator;
+    protected $container;
 
     /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
+     * Constructor
+     * @param ContainerInterface|null $container
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    public function __construct(ContainerInterface $container = null)
     {
-        $this->serviceLocator = $serviceLocator;
+        if ($container !== null) {
+            $this->container = $container;
+        }
     }
 
     /**
-     * Get service locator
-     *
-     * @return \Zend\Mvc\Controller\PluginManager
+     * Set container
+     * @param ContainerInterface $container
+     * @return $this
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    /**
+     * Get container
+     * @return ContainerInterface
+     * @throws \RuntimeException
+     */
+    protected function getContainer()
+    {
+        if (!$this->container) {
+            throw new \RuntimeException('Container not set. Plugin must be instantiated via factory.');
+        }
+        return $this->container;
+    }
+
+    /**
+     * Backward compatibility: Set service locator
+     * @param ContainerInterface $serviceLocator
+     * @return $this
+     * @deprecated Use setContainer() instead
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        return $this->setContainer($serviceLocator);
+    }
+
+    /**
+     * Backward compatibility: Get service locator
+     * @return ContainerInterface
+     * @deprecated Use getContainer() instead
      */
     public function getServiceLocator()
     {
-        return $this->serviceLocator;
+        return $this->getContainer();
     }
 
+    /**
+     * Get a service from the container
+     * @param string $key
+     * @return mixed
+     */
     protected function getService($key)
     {
-        return $this->getServiceLocator()->getServiceLocator()->get($key);
+        return $this->getContainer()->get($key);
     }
 }

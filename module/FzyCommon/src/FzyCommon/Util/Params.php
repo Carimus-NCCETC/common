@@ -1,8 +1,7 @@
 <?php
 namespace FzyCommon\Util;
 
-use Zend\Json\Json;
-use Zend\Http\Request;
+use Laminas\Http\Request;
 
 /**
  * Wrapper for passing arrays of parameter values between services
@@ -148,9 +147,9 @@ class Params
             return new Params($params);
         } elseif ($params instanceof \Traversable) {
             return new Params(self::extractParamsFromCollection($params));
-        } elseif ($params instanceof \Zend\Mvc\Controller\Plugin\Params) {
+        } elseif ($params instanceof \Laminas\Mvc\Controller\Plugin\Params) {
             $results = array();
-            /* @var $r \Zend\Http\Request */
+            /* @var $r \Laminas\Http\Request */
             foreach (array(
                          $params->fromQuery(),
                          $params->fromPost(),
@@ -198,7 +197,7 @@ class Params
             $content = $request->getContent();
             if (!empty($content)) {
                 try {
-                    $result = Json::decode($content, Json::TYPE_ARRAY);
+                    $result = json_decode($content, true);
                 } catch (\RuntimeException $e) {
                 }
             }

@@ -3,8 +3,8 @@
 namespace FzyCommon\Service;
 
 use FzyCommon\Entity\BaseInterface;
-use DoctrineModule\Stdlib\Hydrator\DoctrineObject as DoctrineHydrator;
-use Zend\Form\Annotation\AnnotationBuilder;
+use Doctrine\Laminas\Hydrator\DoctrineObject as DoctrineHydrator;
+use Laminas\Form\Annotation\AnnotationBuilder;
 
 /**
  * Class EntityToForm
@@ -17,7 +17,7 @@ class EntityToForm extends Base
 {
     /**
      * @param $entity
-     * @return null|\Zend\Form\Form
+     * @return null|\Laminas\Form\Form
      */
     public function convertEntity(BaseInterface $entity)
     {

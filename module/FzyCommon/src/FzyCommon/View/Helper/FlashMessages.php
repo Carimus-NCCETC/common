@@ -2,8 +2,8 @@
 
 namespace FzyCommon\View\Helper;
 
-use Zend\View\Helper\AbstractHelper;
-use Zend\Mvc\Controller\Plugin\FlashMessenger as FlashMessenger;
+use Laminas\View\Helper\AbstractHelper;
+use Laminas\Mvc\Plugin\FlashMessenger\FlashMessenger;
 
 /**
  *

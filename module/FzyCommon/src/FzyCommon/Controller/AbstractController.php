@@ -9,7 +9,7 @@
 
 namespace FzyCommon\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\Controller\AbstractActionController;
 use FzyCommon\Util\Params;
 
 abstract class AbstractController extends AbstractActionController

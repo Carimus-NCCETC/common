@@ -3,7 +3,7 @@ FzyCommon Module
 
 Services
 --
-* `FzyCommon\Service\EntityToForm`: accepts doctrine entity and returns a ZF2 form class (\Zend\Form\Form) bound to the entity and hydrated with its information.
+* `FzyCommon\Service\EntityToForm`: accepts doctrine entity and returns a ZF2 form class (\Laminas\Form\Form) bound to the entity and hydrated with its information.
 * `FzyCommon\EntityToForm`: alias for `FzyCommon\Service\EntityToForm`
 * `FzyCommon\Service\Search\Result`: accepts a result provider interface and formats the search result in a standard way 
 * `FzyCommon\Search\Result`: alias for `FzyCommon\Service\Search\Result`

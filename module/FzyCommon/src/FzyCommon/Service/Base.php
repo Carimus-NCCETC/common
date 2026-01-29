@@ -2,22 +2,21 @@
 namespace FzyCommon\Service;
 
 use FzyCommon\Util\Params;
-use Zend\Log\Logger;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class Base
  * @package FzyCommon\Service
  */
-abstract class Base implements ServiceLocatorAwareInterface
+abstract class Base
 {
     const MODULE_CONFIG_KEY = 'fzycommon';
 
     /**
-     * @var ServiceLocatorInterface
+     * @var ContainerInterface
      */
-    protected $locator;
+    protected $container;
 
     /**
      * @var Params
@@ -30,9 +29,43 @@ abstract class Base implements ServiceLocatorAwareInterface
     protected $em;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
+
+    /**
+     * Constructor
+     * @param ContainerInterface|null $container
+     */
+    public function __construct(ContainerInterface $container = null)
+    {
+        if ($container !== null) {
+            $this->container = $container;
+        }
+    }
+
+    /**
+     * Get the container
+     * @return ContainerInterface
+     * @throws \RuntimeException
+     */
+    protected function getContainer()
+    {
+        if (!$this->container) {
+            throw new \RuntimeException('Container not set. Service must be instantiated via factory.');
+        }
+        return $this->container;
+    }
+
+    /**
+     * Backward compatibility alias for getContainer()
+     * @return ContainerInterface
+     * @deprecated Use getContainer() instead
+     */
+    protected function getServiceLocator()
+    {
+        return $this->getContainer();
+    }
 
     /**
      * Get the application config as a Params object
@@ -40,8 +73,8 @@ abstract class Base implements ServiceLocatorAwareInterface
      */
     public function getConfig()
     {
-        if (!isset($config)) {
-            $this->config = $this->getServiceLocator()->get('FzyCommon\Config');
+        if (!isset($this->config)) {
+            $this->config = $this->getContainer()->get('FzyCommon\Config');
         }
 
         return $this->config;
@@ -57,23 +90,25 @@ abstract class Base implements ServiceLocatorAwareInterface
     }
 
     /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
+     * Set container
+     * @param ContainerInterface $container
+     * @return $this
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    public function setContainer(ContainerInterface $container)
     {
-        $this->locator = $serviceLocator;
+        $this->container = $container;
+        return $this;
     }
 
     /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
+     * Backward compatibility method for setting service locator
+     * @param ContainerInterface $serviceLocator
+     * @return $this
+     * @deprecated Use setContainer() instead
      */
-    public function getServiceLocator()
+    public function setServiceLocator($serviceLocator)
     {
-        return $this->locator;
+        return $this->setContainer($serviceLocator);
     }
 
     /**
@@ -82,7 +117,7 @@ abstract class Base implements ServiceLocatorAwareInterface
     public function em()
     {
         if (!isset($this->em)) {
-            $this->em = $this->getServiceLocator()->get('Doctrine\ORM\EntityManager');
+            $this->em = $this->getContainer()->get('Doctrine\ORM\EntityManager');
         }
 
         return $this->em;
@@ -93,7 +128,7 @@ abstract class Base implements ServiceLocatorAwareInterface
      */
     public function url()
     {
-        return $this->getServiceLocator()->get('FzyCommon\Service\Url');
+        return $this->getContainer()->get('FzyCommon\Service\Url');
     }
 
     /**
@@ -107,7 +142,7 @@ abstract class Base implements ServiceLocatorAwareInterface
         $entity = !empty($id) ? $this->em()->find($className, $id) : null;
 
         $nullClass = $className.'Null';
-        if ($className{0} != '\\') {
+        if ($className[0] != '\\') {
             $nullClass = '\\'.$nullClass;
         }
         if ($entity == null) {
@@ -121,7 +156,7 @@ abstract class Base implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param $logger Logger
+     * @param LoggerInterface $logger
      * @return $this
      */
     public function setLogger($logger)
@@ -132,7 +167,7 @@ abstract class Base implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
     public function getLogger()
     {
@@ -146,10 +181,14 @@ abstract class Base implements ServiceLocatorAwareInterface
      * @return $this
      */
     protected function log($logMessage, $extra = array(), $logType = 'err') {
-        $logTypes = array('emerg', 'alert', 'crit', 'err', 'warn', 'notice', 'info', 'debug');
-        if($this->getLogger()) {
-            $logType = in_array($logType, $logTypes) ? $logType : 'err';
-            call_user_func_array(array($this->getLogger(), $logType), array($logMessage, $extra));
+        $map = array(
+            'emerg' => 'emergency', 'alert' => 'alert', 'crit' => 'critical',
+            'err' => 'error', 'warn' => 'warning', 'notice' => 'notice',
+            'info' => 'info', 'debug' => 'debug',
+        );
+        if ($this->getLogger()) {
+            $method = isset($map[$logType]) ? $map[$logType] : 'error';
+            $this->getLogger()->$method($logMessage, $extra);
         }
 
         return $this;

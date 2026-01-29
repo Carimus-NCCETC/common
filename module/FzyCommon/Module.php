@@ -3,17 +3,17 @@ namespace FzyCommon;
 
 use Doctrine\ORM\Events;
 use FzyCommon\Listener\ServiceAwareEntity as ServiceAwareEntityListener;
-use Zend\EventManager\EventInterface;
-use Zend\ModuleManager\Feature\BootstrapListenerInterface;
+use Laminas\EventManager\EventInterface;
+use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
 
 class Module implements BootstrapListenerInterface {
 	public function getAutoloaderConfig()
 	{
 		return array(
-			'Zend\Loader\ClassMapAutoloader' => array(
+			'Laminas\Loader\ClassMapAutoloader' => array(
 				__DIR__ . '/autoload_classmap.php',
 			),
-			'Zend\Loader\StandardAutoloader' => array(
+			'Laminas\Loader\StandardAutoloader' => array(
 				'namespaces' => array(
 					__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 				),
@@ -34,7 +34,7 @@ class Module implements BootstrapListenerInterface {
 	 */
 	public function onBootstrap(EventInterface $e)
 	{
-		/* @var $sm \Zend\ServiceManager\ServiceLocatorInterface */
+		/* @var $sm \Laminas\ServiceManager\ServiceLocatorInterface */
 		$sm = $e->getApplication()->getServiceManager();
 		/* @var $em \Doctrine\ORM\EntityManager */
 		$em = $sm->get('Doctrine\ORM\EntityManager');
