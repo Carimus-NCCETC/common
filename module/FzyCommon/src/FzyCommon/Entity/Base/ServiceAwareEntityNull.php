@@ -2,28 +2,53 @@
 namespace FzyCommon\Entity\Base;
 
 use FzyCommon\Entity\BaseNull;
-use Laminas\ServiceManager\ServiceLocatorInterface;
+use Psr\Container\ContainerInterface;
 
 class ServiceAwareEntityNull extends BaseNull implements ServiceAwareEntityInterface
 {
-    private $sl;
     /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
+     * @var ContainerInterface|null
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    private $container;
+
+    /**
+     * Set container
+     * @param ContainerInterface $container
+     * @return $this
+     */
+    public function setContainer(ContainerInterface $container)
     {
-        $this->sl = $serviceLocator;
+        $this->container = $container;
+        return $this;
     }
 
     /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
+     * Get container
+     * @return ContainerInterface|null
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Backward compatibility: Set service locator
+     * @param ContainerInterface $serviceLocator
+     * @return $this
+     * @deprecated Use setContainer() instead
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        return $this->setContainer($serviceLocator);
+    }
+
+    /**
+     * Backward compatibility: Get service locator
+     * @return ContainerInterface|null
+     * @deprecated Use getContainer() instead
      */
     public function getServiceLocator()
     {
-        return $this->sl;
+        return $this->getContainer();
     }
 }
